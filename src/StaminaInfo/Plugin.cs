@@ -23,7 +23,7 @@ public partial class Plugin : BaseUnityPlugin
     {
         Log = Logger;
         configFontSize = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Font Size", 20f, "Customize the Font Size for stamina bar text.");
-        configOutlineWidth = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Outline Width", 0.075f, "Customize the Outline Width for stamina bar text.");
+        configOutlineWidth = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Outline Width", 0.1f, "Customize the Outline Width for stamina bar text.");
         Harmony.CreateAndPatchAll(typeof(StaminaInfoStaminaBarUpdatePatch));
         Log.LogInfo($"Plugin {Name} is loaded!");
     }
