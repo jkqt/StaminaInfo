@@ -1,8 +1,10 @@
 # StaminaInfo
 
-Displays bar width directly within their respective bars.
+Quantify each status as a number within their respective bars.
 
-- Displays the bar width of:
+Note: This mod uses bar width to calculate instead of pulling from character data.
+
+- Works for:
   - Stamina Bar
   - Extra Stamina Bar
   - Affliction Bars
