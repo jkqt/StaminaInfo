@@ -13,24 +13,26 @@ namespace StaminaInfo;
 public partial class Plugin : BaseUnityPlugin {
     internal static ManualLogSource Log { get; private set; } = null!;
     private static Dictionary<string, TextMeshProUGUI> barTexts;
+    private static Dictionary<string, float> lastKnownData;
     private static GUIManager guiManager;
 
     private void Awake() 
     {
         Log = Logger;
-        Harmony.CreateAndPatchAll(typeof(StaminaInfoPatch));
+        Harmony.CreateAndPatchAll(typeof(StaminaInfoStaminaBarUpdatePatch));
         Log.LogInfo($"Plugin {Name} is loaded!"); 
     }
 
-    private static class StaminaInfoPatch 
+    private static class StaminaInfoStaminaBarUpdatePatch
     { 
         [HarmonyPatch(typeof(StaminaBar), "Update")]
         [HarmonyPostfix]
-        private static void StaminaBarPatch(StaminaBar __instance) {
+        private static void StaminaInfoStaminaBarUpdate(StaminaBar __instance) {
             try {
                 if (guiManager == null) 
                 {
                     barTexts = new Dictionary<string, TextMeshProUGUI>();
+                    lastKnownData = new Dictionary<string, float>();
                     InitStaminaInfo(__instance);
                 }
                 else 
@@ -50,45 +52,60 @@ public partial class Plugin : BaseUnityPlugin {
 
     private static void UpdateBarTexts(StaminaBar staminaBar)
     {
-        if (staminaBar.desiredStaminaSize >= 30f)
+        if (lastKnownData[staminaBar.staminaBar.name] != staminaBar.desiredStaminaSize)
         {
-            barTexts[staminaBar.staminaBar.name].text = (staminaBar.desiredStaminaSize / 6f).ToString("F1");
-            barTexts[staminaBar.staminaBar.name].gameObject.SetActive(true);
-        }
-        else if (staminaBar.desiredStaminaSize >= 15f)
-        {
-            barTexts[staminaBar.staminaBar.name].text = Mathf.Round(staminaBar.desiredStaminaSize / 6f).ToString();
-            barTexts[staminaBar.staminaBar.name].gameObject.SetActive(true);
-        }
-        else
-        {
-            barTexts[staminaBar.staminaBar.name].gameObject.SetActive(false);
+            if (staminaBar.desiredStaminaSize >= 30f)
+            {
+                barTexts[staminaBar.staminaBar.name].text = (staminaBar.desiredStaminaSize / 6f).ToString("F1");
+                barTexts[staminaBar.staminaBar.name].gameObject.SetActive(true);
+            }
+            else if (staminaBar.desiredStaminaSize >= 15f)
+            {
+                barTexts[staminaBar.staminaBar.name].text = Mathf.Round(staminaBar.desiredStaminaSize / 6f).ToString();
+                barTexts[staminaBar.staminaBar.name].gameObject.SetActive(true);
+            }
+            else
+            {
+                barTexts[staminaBar.staminaBar.name].gameObject.SetActive(false);
+            }
+            lastKnownData[staminaBar.staminaBar.name] = staminaBar.desiredStaminaSize;
+            //Log.LogInfo("Stamina: " + (staminaBar.desiredStaminaSize / 6f).ToString("F1"));
         }
 
-        if (staminaBar.desiredExtraStaminaSize >= 30f)
-        { 
-            barTexts["ExtraStamina"].text = (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1");
-            barTexts["ExtraStamina"].gameObject.SetActive(true);
-        }
-        else if (staminaBar.desiredExtraStaminaSize >= 15f)
+        if (lastKnownData["ExtraStamina"] != staminaBar.desiredExtraStaminaSize)
         {
-            barTexts["ExtraStamina"].text = Mathf.Round(staminaBar.desiredExtraStaminaSize / 6f).ToString();
-            barTexts["ExtraStamina"].gameObject.SetActive(true);
-        }
-        else
-        {
-            barTexts["ExtraStamina"].gameObject.SetActive(false);
+            if (staminaBar.desiredExtraStaminaSize >= 30f)
+            {
+                barTexts["ExtraStamina"].text = (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1");
+                barTexts["ExtraStamina"].gameObject.SetActive(true);
+            }
+            else if (staminaBar.desiredExtraStaminaSize >= 15f)
+            {
+                barTexts["ExtraStamina"].text = Mathf.Round(staminaBar.desiredExtraStaminaSize / 6f).ToString();
+                barTexts["ExtraStamina"].gameObject.SetActive(true);
+            }
+            else
+            {
+                barTexts["ExtraStamina"].gameObject.SetActive(false);
+            }
+            lastKnownData["ExtraStamina"] = staminaBar.desiredExtraStaminaSize;
+            //Log.LogInfo("Extra Stamina: " + (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1"));
         }
 
         foreach (BarAffliction affliction in staminaBar.afflictions)
         {
-            if (affliction.size >= 30f)
+            if (lastKnownData[affliction.name] != affliction.size)
             {
-                barTexts[affliction.name].text = (affliction.size / 6f).ToString("F1");
-            }
-            else if (affliction.size >= 15f)
-            {
-                barTexts[affliction.name].text = Mathf.Round(affliction.size / 6f).ToString();
+                if (affliction.size >= 30f)
+                {
+                    barTexts[affliction.name].text = (affliction.size / 6f).ToString("F1").Replace(".0", "");
+                }
+                else if (affliction.size >= 15f)
+                {
+                    barTexts[affliction.name].text = Mathf.Round(affliction.size / 6f).ToString();
+                }
+                lastKnownData[affliction.name] = affliction.size;
+                //Log.LogInfo(affliction.name + ": " + (affliction.size / 6f).ToString("F1"));
             }
         }
     }
@@ -120,8 +137,7 @@ public partial class Plugin : BaseUnityPlugin {
         staminaInfoText.verticalAlignment = VerticalAlignmentOptions.Capline;
         staminaInfoText.textWrappingMode = TextWrappingModes.NoWrap;
         staminaInfoText.text = "";
-        barTexts.Add(barName, staminaInfoText); 
-        Log.LogInfo("Attached StaminaInfo to " + gameObj.name + ".");
-        // Note: Setting .outlineWidth throws an error...
+        barTexts.Add(barName, staminaInfoText);
+        lastKnownData.Add(barName, 0f);
     } 
 }
