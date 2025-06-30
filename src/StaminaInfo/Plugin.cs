@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using Photon.Realtime;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -69,7 +68,6 @@ public partial class Plugin : BaseUnityPlugin {
                 barTexts[staminaBar.staminaBar.name].gameObject.SetActive(false);
             }
             lastKnownData[staminaBar.staminaBar.name] = staminaBar.desiredStaminaSize;
-            //Log.LogInfo("Stamina: " + (staminaBar.desiredStaminaSize / 6f).ToString("F1"));
         }
 
         if (lastKnownData["ExtraStamina"] != staminaBar.desiredExtraStaminaSize)
@@ -89,7 +87,6 @@ public partial class Plugin : BaseUnityPlugin {
                 barTexts["ExtraStamina"].gameObject.SetActive(false);
             }
             lastKnownData["ExtraStamina"] = staminaBar.desiredExtraStaminaSize;
-            //Log.LogInfo("Extra Stamina: " + (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1"));
         }
 
         foreach (BarAffliction affliction in staminaBar.afflictions)
@@ -105,7 +102,6 @@ public partial class Plugin : BaseUnityPlugin {
                     barTexts[affliction.name].text = Mathf.Round(affliction.size / 6f).ToString();
                 }
                 lastKnownData[affliction.name] = affliction.size;
-                //Log.LogInfo(affliction.name + ": " + (affliction.size / 6f).ToString("F1"));
             }
         }
     }
