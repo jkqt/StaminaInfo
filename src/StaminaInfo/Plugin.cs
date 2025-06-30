@@ -44,7 +44,8 @@ public partial class Plugin : BaseUnityPlugin
                 }
                 else
                 {
-                    if (guiManager.character != null)
+                    //if (guiManager.character != null)
+                    if (Character.observedCharacter != null)
                     {
                         UpdateBarTexts(__instance);
                     }

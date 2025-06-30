@@ -2,7 +2,7 @@
 
 Quantify each status as a number within their respective bars.
 
-Note: This mod uses bar width to calculate instead of pulling from character data.
+Note: This mod uses bar width to calculate (instead of pulling from character data).
 
 - Works for:
   - Stamina Bar
