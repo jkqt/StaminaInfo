@@ -1,6 +1,13 @@
 # StaminaInfo
 
-Displays stamina and afflictions numbers.
+Displays the bar width of:
+    - Stamina Bar
+    - Extra Stamina Bar
+    - Affliction Bars
+
+Configurable:
+    - Font Size
+    - Outline Width
 
 ## Template Instructions
 

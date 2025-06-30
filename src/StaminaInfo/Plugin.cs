@@ -10,46 +10,51 @@ using UnityEngine;
 namespace StaminaInfo;
 
 [BepInAutoPlugin]
-public partial class Plugin : BaseUnityPlugin {
+public partial class Plugin : BaseUnityPlugin
+{
     internal static ManualLogSource Log { get; private set; } = null!;
     private static Dictionary<string, TextMeshProUGUI> barTexts;
     private static Dictionary<string, float> lastKnownData;
     private static GUIManager guiManager;
     private static ConfigEntry<float> configFontSize;
+    private static ConfigEntry<float> configOutlineWidth;
 
-    private void Awake() 
+    private void Awake()
     {
         Log = Logger;
         configFontSize = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Font Size", 20f, "Customize the Font Size for stamina bar text.");
+        configOutlineWidth = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Outline Width", 0.075f, "Customize the Outline Width for stamina bar text.");
         Harmony.CreateAndPatchAll(typeof(StaminaInfoStaminaBarUpdatePatch));
-        Log.LogInfo($"Plugin {Name} is loaded!"); 
+        Log.LogInfo($"Plugin {Name} is loaded!");
     }
 
     private static class StaminaInfoStaminaBarUpdatePatch
-    { 
+    {
         [HarmonyPatch(typeof(StaminaBar), "Update")]
         [HarmonyPostfix]
-        private static void StaminaInfoStaminaBarUpdate(StaminaBar __instance) {
-            try {
-                if (guiManager == null) 
+        private static void StaminaInfoStaminaBarUpdate(StaminaBar __instance)
+        {
+            try
+            {
+                if (guiManager == null)
                 {
                     barTexts = new Dictionary<string, TextMeshProUGUI>();
                     lastKnownData = new Dictionary<string, float>();
                     InitStaminaInfo(__instance);
                 }
-                else 
+                else
                 {
-                    if (guiManager.character != null) 
+                    if (guiManager.character != null)
                     {
-                        UpdateBarTexts(__instance); 
-                    } 
+                        UpdateBarTexts(__instance);
+                    }
                 }
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
-                Log.LogError(e.Message + e.StackTrace); 
-            } 
-        } 
+                Log.LogError(e.Message + e.StackTrace);
+            }
+        }
     }
 
     private static void UpdateBarTexts(StaminaBar staminaBar)
@@ -109,25 +114,26 @@ public partial class Plugin : BaseUnityPlugin {
         }
     }
 
-    private static void InitStaminaInfo(StaminaBar staminaBar) 
+    private static void InitStaminaInfo(StaminaBar staminaBar)
     {
         GameObject guiManagerGameObj = GameObject.Find("GAME/GUIManager");
         guiManager = guiManagerGameObj.GetComponent<GUIManager>();
         TMPro.TMP_FontAsset font = guiManager.heroDayText.font;
         AddTextObject(staminaBar.staminaBar.gameObject, staminaBar.staminaBar.name, font);
         AddTextObject(staminaBar.extraBarStamina.gameObject, "ExtraStamina", font);
-        foreach (BarAffliction affliction in staminaBar.afflictions) 
-        { 
-            AddTextObject(affliction.gameObject, affliction.gameObject.name, font); 
-        } 
+        foreach (BarAffliction affliction in staminaBar.afflictions)
+        {
+            AddTextObject(affliction.gameObject, affliction.gameObject.name, font);
+        }
     }
 
-    private static void AddTextObject(GameObject gameObj, string barName, TMPro.TMP_FontAsset font) 
+    private static void AddTextObject(GameObject gameObj, string barName, TMPro.TMP_FontAsset font)
     {
         GameObject staminaInfo = new GameObject("StaminaInfo");
         staminaInfo.transform.SetParent(gameObj.transform);
         TextMeshProUGUI staminaInfoText = staminaInfo.AddComponent<TextMeshProUGUI>();
         RectTransform staminaInfoRect = staminaInfo.GetComponent<RectTransform>();
+        gameObj.SetActive(true); // Necessary to update .fontSharedMaterial
         staminaInfoText.font = font;
         staminaInfoText.fontSize = configFontSize.Value;
         staminaInfoRect.offsetMin = new Vector2(0f, 0f);
@@ -138,5 +144,6 @@ public partial class Plugin : BaseUnityPlugin {
         staminaInfoText.text = "";
         barTexts.Add(barName, staminaInfoText);
         lastKnownData.Add(barName, 0f);
-    } 
+        staminaInfoText.outlineWidth = configOutlineWidth.Value; // Very Buggy
+    }
 }
