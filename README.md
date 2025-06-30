@@ -1,13 +1,15 @@
 # StaminaInfo
 
-Displays the bar width of:
-    - Stamina Bar
-    - Extra Stamina Bar
-    - Affliction Bars
+Displays bar width directly within their respective bars.
 
-Configurable:
-    - Font Size
-    - Outline Width
+- Displays the bar width of:
+  - Stamina Bar
+  - Extra Stamina Bar
+  - Affliction Bars
+
+- Configurable:
+  - Font Size
+  - Outline Width
 
 ## Template Instructions
 
