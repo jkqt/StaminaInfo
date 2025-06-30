@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
@@ -14,10 +15,12 @@ public partial class Plugin : BaseUnityPlugin {
     private static Dictionary<string, TextMeshProUGUI> barTexts;
     private static Dictionary<string, float> lastKnownData;
     private static GUIManager guiManager;
+    private static ConfigEntry<float> configFontSize;
 
     private void Awake() 
     {
         Log = Logger;
+        configFontSize = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Font Size", 20f, "Customize the Font Size for stamina bar text.");
         Harmony.CreateAndPatchAll(typeof(StaminaInfoStaminaBarUpdatePatch));
         Log.LogInfo($"Plugin {Name} is loaded!"); 
     }
@@ -126,7 +129,7 @@ public partial class Plugin : BaseUnityPlugin {
         TextMeshProUGUI staminaInfoText = staminaInfo.AddComponent<TextMeshProUGUI>();
         RectTransform staminaInfoRect = staminaInfo.GetComponent<RectTransform>();
         staminaInfoText.font = font;
-        staminaInfoText.fontSize = 20f;
+        staminaInfoText.fontSize = configFontSize.Value;
         staminaInfoRect.offsetMin = new Vector2(0f, 0f);
         staminaInfoRect.offsetMax = new Vector2(0f, 0f);
         staminaInfoText.alignment = TextAlignmentOptions.Center;
