@@ -7,8 +7,8 @@ repository = "https://thunderstore.io"
 [package]
 namespace = "jkqt"
 name = "StaminaInfo"
-description = "TODO: Fill in short mod description."
-websiteUrl = "" # TODO: Add a link to your mod repository here (optional)
+description = "Quantify stamina bar numbers."
+websiteUrl = "https://github.com/jkqt/StaminaInfo"
 containsNsfwContent = false
 
 [package.dependencies]
