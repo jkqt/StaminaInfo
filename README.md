@@ -1,5 +1,7 @@
 # StaminaInfo
 
+This mod is only found at https://thunderstore.io/c/peak/p/jkqt/StaminaInfo/ - Do NOT download it from anywhere else!
+
 Quantify each status as a number within their respective bars (at their center).
 
 Note: This mod uses bar width to calculate (instead of pulling from character data).
