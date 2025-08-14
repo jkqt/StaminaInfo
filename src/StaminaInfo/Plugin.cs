@@ -18,12 +18,16 @@ public partial class Plugin : BaseUnityPlugin
     private static GUIManager guiManager;
     private static ConfigEntry<float> configFontSize;
     private static ConfigEntry<float> configOutlineWidth;
+    private static ConfigEntry<Boolean> configRoundStamina;
+    private static ConfigEntry<Boolean> configRoundAffliction;
 
     private void Awake()
     {
         Log = Logger;
         configFontSize = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Font Size", 20f, "Customize the Font Size for stamina bar text.");
         configOutlineWidth = ((BaseUnityPlugin)this).Config.Bind<float>("StaminaInfo", "Outline Width", 0.08f, "Customize the Outline Width for stamina bar text.");
+        configRoundStamina = ((BaseUnityPlugin)this).Config.Bind<Boolean>("StaminaInfo", "Round Stamina Bars", true, "If true, rounds to the nearest whole number for the stamina and extra stamina bars.");
+        configRoundAffliction = ((BaseUnityPlugin)this).Config.Bind<Boolean>("StaminaInfo", "Round Affliction Bars", false, "If true, rounds to the nearest whole number for affliction bars.");
         Harmony.CreateAndPatchAll(typeof(StaminaInfoStaminaBarUpdatePatch));
         Log.LogInfo($"Plugin {Name} is loaded!");
     }
@@ -64,7 +68,8 @@ public partial class Plugin : BaseUnityPlugin
         {
             if (staminaBar.desiredStaminaSize >= 30f)
             {
-                barTexts[staminaBar.staminaBar.name].text = (staminaBar.desiredStaminaSize / 6f).ToString("F1");
+                if (configRoundStamina.Value) { barTexts[staminaBar.staminaBar.name].text = Mathf.Round(staminaBar.desiredStaminaSize / 6f).ToString(); }
+                else { barTexts[staminaBar.staminaBar.name].text = (staminaBar.desiredStaminaSize / 6f).ToString("F1"); }
                 barTexts[staminaBar.staminaBar.name].gameObject.SetActive(true);
             }
             else if (staminaBar.desiredStaminaSize >= 15f)
@@ -83,7 +88,8 @@ public partial class Plugin : BaseUnityPlugin
         {
             if (staminaBar.desiredExtraStaminaSize >= 30f)
             {
-                barTexts["ExtraStamina"].text = (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1");
+                if (configRoundStamina.Value) { barTexts["ExtraStamina"].text = Mathf.Round(staminaBar.desiredExtraStaminaSize / 6f).ToString(); }
+                else { barTexts["ExtraStamina"].text = (staminaBar.desiredExtraStaminaSize / 6f).ToString("F1"); }
                 barTexts["ExtraStamina"].gameObject.SetActive(true);
             }
             else if (staminaBar.desiredExtraStaminaSize >= 15f)
@@ -104,7 +110,8 @@ public partial class Plugin : BaseUnityPlugin
             {
                 if (affliction.size >= 30f)
                 {
-                    barTexts[affliction.name].text = (affliction.size / 6f).ToString("F1").Replace(".0", "");
+                    if (configRoundAffliction.Value) { barTexts[affliction.name].text = Mathf.Round(affliction.size / 6f).ToString(); }
+                    else { barTexts[affliction.name].text = (affliction.size / 6f).ToString("F1").Replace(".0", ""); }
                 }
                 else if (affliction.size >= 15f)
                 {
